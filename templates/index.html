@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>体态健康日记</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌿</text></svg>">
+    <link rel="stylesheet" href="/static/css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+    <div class="app-container">
+        <!-- 顶部导航 -->
+        <header class="header">
+            <div class="header-content">
+                <h1 class="logo">
+                    <span class="logo-icon">🌿</span>
+                    <span>体态健康日记</span>
+                </h1>
+                <div class="header-actions">
+                    <button class="btn-icon" id="settingsBtn" title="设置">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- 快速概览卡片 -->
+        <section class="overview-section">
+            <div class="overview-cards">
+                <div class="overview-card" id="todayOverview">
+                    <div class="overview-icon">📅</div>
+                    <div class="overview-info">
+                        <span class="overview-label">今日日期</span>
+                        <span class="overview-value" id="todayDate">--</span>
+                    </div>
+                </div>
+                <div class="overview-card" id="painOverview">
+                    <div class="overview-icon">😌</div>
+                    <div class="overview-info">
+                        <span class="overview-label">今日疼痛</span>
+                        <span class="overview-value" id="todayPain">暂无记录</span>
+                    </div>
+                </div>
+                <div class="overview-card" id="sleepOverview">
+                    <div class="overview-icon">😴</div>
+                    <div class="overview-info">
+                        <span class="overview-label">睡眠时长</span>
+                        <span class="overview-value" id="todaySleep">暂无记录</span>
+                    </div>
+                </div>
+                <div class="overview-card" id="exerciseOverview">
+                    <div class="overview-icon">🏃</div>
+                    <div class="overview-info">
+                        <span class="overview-label">运动时间</span>
+                        <span class="overview-value" id="todayExercise">暂无记录</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 标签页 -->
+        <nav class="tabs">
+            <button class="tab-btn active" data-tab="record">
+                <span>📝</span> 每日记录
+            </button>
+            <button class="tab-btn" data-tab="symptoms">
+                <span>🔍</span> 症状追踪
+            </button>
+            <button class="tab-btn" data-tab="exercises">
+                <span>🧘</span> 康复动作
+            </button>
+            <button class="tab-btn" data-tab="history">
+                <span>📊</span> 历史记录
+            </button>
+        </nav>
+
+        <!-- 主内容区 -->
+        <main class="main-content">
+            <!-- 每日记录标签页 -->
+            <section class="tab-content active" id="recordTab">
+                <div class="card">
+                    <h2 class="card-title">
+                        <span>📝</span> 今日体态记录
+                    </h2>
+                    <form id="recordForm" class="record-form">
+                        <input type="hidden" id="recordDate" name="record_date">
+
+                        <!-- 疼痛程度 -->
+                        <div class="form-section">
+                            <h3 class="section-title">疼痛程度 <span class="hint">(0=无痛, 10=剧痛)</span></h3>
+                            <div class="pain-inputs">
+                                <div class="pain-input-group">
+                                    <label for="neckPain">
+                                        <span class="body-icon">🦒</span> 颈部
+                                    </label>
+                                    <input type="range" id="neckPain" name="neck_pain" min="0" max="10" value="0" class="pain-slider">
+                                    <span class="pain-value" id="neckPainValue">0</span>
+                                </div>
+                                <div class="pain-input-group">
+                                    <label for="shoulderPain">
+                                        <span class="body-icon">💪</span> 肩部
+                                    </label>
+                                    <input type="range" id="shoulderPain" name="shoulder_pain" min="0" max="10" value="0" class="pain-slider">
+                                    <span class="pain-value" id="shoulderPainValue">0</span>
+                                </div>
+                                <div class="pain-input-group">
+                                    <label for="waistPain">
+                                        <span class="body-icon">🫃</span> 腰部
+                                    </label>
+                                    <input type="range" id="waistPain" name="waist_pain" min="0" max="10" value="0" class="pain-slider">
+                                    <span class="pain-value" id="waistPainValue">0</span>
+                                </div>
+                                <div class="pain-input-group">
+                                    <label for="backPain">
+                                        <span class="body-icon">🧍</span> 背部
+                                    </label>
+                                    <input type="range" id="backPain" name="back_pain" min="0" max="10" value="0" class="pain-slider">
+                                    <span class="pain-value" id="backPainValue">0</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 睡眠 -->
+                        <div class="form-section">
+                            <h3 class="section-title">睡眠情况</h3>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="sleepHours">睡眠时长 (小时)</label>
+                                    <input type="number" id="sleepHours" name="sleep_hours" min="0" max="24" step="0.5" value="7" class="form-input">
+                                </div>
+                                <div class="form-group">
+                                    <label>睡眠质量</label>
+                                    <div class="star-rating" id="sleepQuality">
+                                        <span class="star" data-value="1">☆</span>
+                                        <span class="star" data-value="2">☆</span>
+                                        <span class="star" data-value="3">☆</span>
+                                        <span class="star" data-value="4">☆</span>
+                                        <span class="star" data-value="5">☆</span>
+                                    </div>
+                                    <input type="hidden" id="sleepQualityValue" name="sleep_quality" value="3">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 运动 -->
+                        <div class="form-section">
+                            <h3 class="section-title">运动情况</h3>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="exerciseMinutes">运动时长 (分钟)</label>
+                                    <input type="number" id="exerciseMinutes" name="exercise_minutes" min="0" max="600" value="0" class="form-input">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 心情 -->
+                        <div class="form-section">
+                            <h3 class="section-title">今日心情</h3>
+                            <div class="mood-selector" id="moodSelector">
+                                <button type="button" class="mood-btn" data-value="1" title="非常糟糕">😢</button>
+                                <button type="button" class="mood-btn" data-value="3" title="不太好">😕</button>
+                                <button type="button" class="mood-btn" data-value="5" title="一般">😐</button>
+                                <button type="button" class="mood-btn active" data-value="7" title="不错">😀</button>
+                                <button type="button" class="mood-btn" data-value="9" title="非常好">😊</button>
+                            </div>
+                            <input type="hidden" id="moodScore" name="mood_score" value="7">
+                        </div>
+
+                        <button type="submit" class="btn-primary btn-block">
+                            <span>💾</span> 保存记录
+                        </button>
+                    </form>
+                </div>
+            </section>
+
+            <!-- 症状追踪标签页 -->
+            <section class="tab-content" id="symptomsTab">
+                <div class="card">
+                    <h2 class="card-title">
+                        <span>🔍</span> 记录症状
+                    </h2>
+                    <form id="symptomForm" class="symptom-form">
+                        <!-- 日期 -->
+                        <div class="form-group">
+                            <label for="symptomDate">日期</label>
+                            <input type="date" id="symptomDate" name="record_date" class="form-input">
+                        </div>
+
+                        <!-- 部位选择 -->
+                        <div class="form-group">
+                            <label>选择部位</label>
+                            <div class="body-parts" id="bodyPartSelector">
+                                <button type="button" class="body-part-btn" data-part="neck">
+                                    <span class="body-icon">🦒</span>
+                                    <span>颈部</span>
+                                </button>
+                                <button type="button" class="body-part-btn" data-part="shoulder">
+                                    <span class="body-icon">💪</span>
+                                    <span>肩部</span>
+                                </button>
+                                <button type="button" class="body-part-btn" data-part="waist">
+                                    <span class="body-icon">🫃</span>
+                                    <span>腰部</span>
+                                </button>
+                                <button type="button" class="body-part-btn" data-part="back">
+                                    <span class="body-icon">🧍</span>
+                                    <span>背部</span>
+                                </button>
+                            </div>
+                            <input type="hidden" id="selectedBodyPart" name="body_part" value="">
+                        </div>
+
+                        <!-- 症状类型 -->
+                        <div class="form-group">
+                            <label for="symptomType">症状类型</label>
+                            <select id="symptomType" name="symptom_type" class="form-input">
+                                <option value="">请选择症状</option>
+                                <option value="酸痛">酸痛</option>
+                                <option value="麻木">麻木</option>
+                                <option value="僵硬">僵硬</option>
+                                <option value="刺痛">刺痛</option>
+                                <option value="无力">无力</option>
+                            </select>
+                        </div>
+
+                        <!-- 可能原因 -->
+                        <div class="form-group">
+                            <label for="possibleCause">可能原因</label>
+                            <div class="cause-chips">
+                                <span class="chip" data-cause="久坐">久坐</span>
+                                <span class="chip" data-cause="剧烈运动">剧烈运动</span>
+                                <span class="chip" data-cause="受凉">受凉</span>
+                                <span class="chip" data-cause="压力大">压力大</span>
+                                <span class="chip" data-cause="睡姿不当">睡姿不当</span>
+                            </div>
+                            <input type="text" id="possibleCause" name="possible_cause" class="form-input" placeholder="或输入其他原因">
+                        </div>
+
+                        <!-- 备注 -->
+                        <div class="form-group">
+                            <label for="symptomNotes">备注说明</label>
+                            <textarea id="symptomNotes" name="notes" class="form-input form-textarea" placeholder="补充说明..."></textarea>
+                        </div>
+
+                        <button type="submit" class="btn-primary btn-block">
+                            <span>➕</span> 添加症状
+                        </button>
+                    </form>
+                </div>
+
+                <!-- 症状列表 -->
+                <div class="card">
+                    <h2 class="card-title">
+                        <span>📋</span> 症状记录列表
+                    </h2>
+                    <div id="symptomsList" class="symptoms-list">
+                        <!-- 动态加载 -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- 康复动作标签页 -->
+            <section class="tab-content" id="exercisesTab">
+                <div class="card">
+                    <h2 class="card-title">
+                        <span>🧘</span> 今日推荐动作
+                    </h2>
+                    <p class="card-subtitle">根据您的今日疼痛情况智能推荐</p>
+                    <div id="recommendedExercises" class="exercise-list">
+                        <!-- 动态加载 -->
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2 class="card-title">
+                        <span>📚</span> 全部康复动作库
+                    </h2>
+                    <div id="allExercises" class="exercise-list">
+                        <!-- 动态加载 -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- 历史记录标签页 -->
+            <section class="tab-content" id="historyTab">
+                <!-- 数据分析 -->
+                <div class="card">
+                    <h2 class="card-title">
+                        <span>📈</span> 本周疼痛趋势
+                    </h2>
+                    <div class="chart-container">
+                        <canvas id="painChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- 睡眠与疼痛相关性 -->
+                <div class="card">
+                    <h2 class="card-title">
+                        <span>🔗</span> 睡眠与疼痛相关性
+                    </h2>
+                    <div class="correlation-info" id="correlationInfo">
+                        <p>正在加载相关性数据...</p>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="correlationChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- 健康日历 -->
+                <div class="card">
+                    <h2 class="card-title">
+                        <span>📅</span> 健康日历
+                    </h2>
+                    <div class="calendar-header">
+                        <button class="btn-icon" id="prevMonth">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                        </button>
+                        <h3 id="calendarTitle">2024年1月</h3>
+                        <button class="btn-icon" id="nextMonth">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                        </button>
+                    </div>
+                    <div class="calendar-legend">
+                        <span class="legend-item"><span class="legend-dot" style="background:#4ECDC4"></span> 无痛</span>
+                        <span class="legend-item"><span class="legend-dot" style="background:#FFA94D"></span> 轻度</span>
+                        <span class="legend-item"><span class="legend-dot" style="background:#FFB3B3"></span> 中度</span>
+                        <span class="legend-item"><span class="legend-dot" style="background:#FF6B6B"></span> 重度</span>
+                    </div>
+                    <div class="calendar-grid" id="calendarGrid">
+                        <!-- 动态加载 -->
+                    </div>
+                </div>
+
+                <!-- 周报 -->
+                <div class="card" id="weeklyReportCard">
+                    <h2 class="card-title">
+                        <span>📊</span> 本周健康周报
+                    </h2>
+                    <div id="weeklyReport" class="weekly-report">
+                        <!-- 动态加载 -->
+                    </div>
+                </div>
+
+                <!-- 历史记录列表 -->
+                <div class="card">
+                    <h2 class="card-title">
+                        <span>📜</span> 历史记录
+                    </h2>
+                    <div class="filter-bar">
+                        <input type="date" id="filterDate" class="form-input">
+                        <button class="btn-secondary" id="filterBtn">筛选</button>
+                        <button class="btn-secondary" id="exportBtn">导出CSV</button>
+                    </div>
+                    <div id="historyList" class="history-list">
+                        <!-- 动态加载 -->
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- 设置弹窗 -->
+        <div class="modal" id="settingsModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>设置</h3>
+                    <button class="btn-icon modal-close" id="closeSettings">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <span class="setting-title">久坐提醒</span>
+                            <span class="setting-desc">每45分钟提醒您起身活动</span>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" id="sitReminder">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <span class="setting-title">晚间记录提醒</span>
+                            <span class="setting-desc">每晚8点提醒记录当日体征</span>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" id="nightReminder">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 日期详情弹窗 -->
+        <div class="modal" id="dateDetailModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 id="detailDateTitle">日期详情</h3>
+                    <button class="btn-icon modal-close" id="closeDetail">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                    </button>
+                </div>
+                <div class="modal-body" id="dateDetailContent">
+                    <!-- 动态加载 -->
+                </div>
+            </div>
+        </div>
+
+        <!-- 提示条 -->
+        <div class="toast" id="toast">
+            <span id="toastMessage">提示消息</span>
+        </div>
+    </div>
+
+    <script src="/static/js/app.js"></script>
+</body>
+</html>
